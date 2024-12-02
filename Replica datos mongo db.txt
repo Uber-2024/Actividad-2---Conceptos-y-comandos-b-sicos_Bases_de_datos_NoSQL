@@ -1,0 +1,99 @@
+//iniciar los 3 nodos locales que serán
+
+Nodo 1: mongod --port 27021 
+Nodo 2: mongod --port 27022 
+Nodo 3: mongod --port 27023 
+
+comandos para ejecutar el Replica Set en Mongo
+
+//iniciar MongoDB en cada uno de ellos con la opción --replSet para configurarlos como parte de un Replica Set:
+
+
+mongod --replSet RP --dbpath="C:\datos\db11" --port 27021
+mongod --replSet RP --dbpath="C:\datos\db22" --port 27022
+mongod --replSet RP --dbpath="C:\datos\db33" --port 27023
+
+//abrimos la consola en modo cliente acceder a la conexión
+
+mongosh --host localhost --port 27021
+
+//dentro del servidor local de mongo ejecutamos este comando para configurar el Replica Set o servidor primario
+
+rs.initiate()
+
+//Añadir los nodos secundarios
+rs.add("localhost:27022")
+rs.add("localhost:27023")
+
+//confirurar servidores
+
+rs.conf
+
+// se verifica que el Replica Set se configuró correctamente, se escribe este comando en la terminal
+
+rs.status()
+
+
+
+//Casos de prueba
+//Prueba de escritura en el servidor primario:
+
+//Realizar una operación de escritura y verificar su replicación en los nodos secundarios.
+
+use Torneo
+db.Torneo.insertarbitro({"nombre": "Fernando Javier",
+  "apellido": "Cubides",
+  "fecha_nacimiento": "1987-07-25",
+  "nacionalidad": "Argentina",
+  "estatus": "Activo",
+  "partidos_asignados": [
+    {
+      "_idpartido": "Objectid()",
+      "rol": "Línea 1"
+    }
+  ]
+}
+{"nombre": "Jesús ",
+  "apellido": "Gil Manzano",
+  "fecha_nacimiento": "1985-08-21",
+  "nacionalidad": "espanol",
+  "estatus": "Activo",
+  "partidos_asignados": [
+    {
+      "_idpartido": "Barcelona VS PSG",
+      "rol": "Línea linea 2"
+    }
+  ]
+}
+
+}
+{"nombre": "Wilmar  ",
+  "apellido": "Roldan",
+  "fecha_nacimiento": "1994-08-21",
+  "nacionalidad": "Colombiano",
+  "estatus": "Activo",
+  "partidos_asignados": [
+    {
+      "_idpartido": "River Plate VS Flamengo",
+      "rol": "Línea linea Central"
+    }
+  ]
+})
+
+//consultar replicación de datos en los servidores secundarios
+
+db.Torneo.arbitro.find()
+
+//Prueba de Failover:
+
+//Simular la caída del nodo primario deteniéndolo:
+
+mongod --shutdown --port 27021
+
+Verificar que un nodo secundario se convierte en primario:
+rs.status()
+
+
+
+
+
